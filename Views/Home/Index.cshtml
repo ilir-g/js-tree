@@ -1,0 +1,173 @@
+﻿@model IEnumerable<IlirGashijstree.Models.CommodityChapters>
+@{
+    ViewBag.Title = "Home Page";
+   
+}
+
+<div class="modal fade" id="openModal" tabindex="-1" role="dialog" aria-labelledby="openModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="form-group">
+                    <div class="row">
+                        <h5 class="col-12 modal-title text-darkred text-center ml-3">Edit</h5>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="container">
+                        <input type="hidden" name="Id" id="Id" />
+                        <div class="form-group">
+                            <div class="col-6">
+                                <input type="text" id="Code" class="form-control" name="Code" readonly />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-12">
+                                <input type="text" id="Name" class="form-control" name="Name" />
+                            </div>
+                        </div>
+
+
+
+                        <div class="form-group row col-6 center-block">
+                            <button type="button" id="Cancel" class="btn btn-secondary ml-5 mr-5" data-dismiss="modal">Cancel</button>
+                            <button type="submit" id="Save" class="btn btn-primary ml-2 mr-3">Send</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="tree">
+
+</div>
+
+
+@section Scripts{
+
+    <script>
+        $(document).ready(function () {
+            getTree();
+        })
+        function getTree() {         
+            $('#tree').on('open_node.jstree', function (e, data) {
+                var nodesToKeepOpen = [];
+                // get all parent nodes to keep open
+                $('#' + data.node.id).parents('.jstree-node').each(function () {
+                    nodesToKeepOpen.push(this.id);
+                });
+                // add current node to keep open
+                nodesToKeepOpen.push(data.node.id);
+                // close all other nodes
+                $('.jstree-node').each(function () {
+                    if (nodesToKeepOpen.indexOf(this.id) === -1) {
+                        $("#tree").jstree().close_node(this.id);
+                    }
+                })
+            })
+                .jstree({
+                    "plugins": ["contextmenu"],
+                    "contextmenu": {
+                        "items": customMenu
+                    },
+                    "core": {
+                     
+                        'data': {
+                            'url': function (node) {
+                                console.log(node.id);
+                                return node.id == "#" ? "/Home/GetTreeData" : "/Home/GetTreeDataChildren?Id=" + node.id;
+
+                            },
+                            'data': function (node) {
+                                return { 'id': node.id };
+                            }
+                        },
+                        "themes": {
+                            "url": true,
+                            "check_callback": true
+                        },
+
+
+                    }
+                })
+        }
+        function customMenu(node) {
+
+            console.log(node);
+            //If node is a root do not show the  menu item
+            if (node.parent == "#") {
+                console.log('is root');
+                return;
+            }
+            var items = {
+                "edit": {
+                    "label": "Edit",
+                    "action": function (e) {
+
+                        if (node.original.ChapterId > 0) {
+                            console.log('Edit Chapter');
+                        }
+                        else if (node.original.RootId > 0) {
+                            $('#openModal').modal('show');
+                            $("#Code").val(node.original.RootCode);
+                            $("#Name").val(node.original.RootName);
+                            $("#Id").val(node.original.RootId);
+                            $("#Save").on('click', function (event) {
+                                event.preventDefault();
+                                $.post('/Home/Update_CommodityRoot', $('form').serialize()).done(function (data) {
+                                    if (data == "ok") {
+                                        $('#openModal').modal('hide');
+                                        var parent = $("#tree").jstree(true).get_node(node).parent;
+                                       
+                                        $("#tree").jstree(true).refresh_node(parent);
+
+
+
+                                    } else {
+                                        alert('Something goes wrong');
+                                    }
+
+                                }).fail(function () {
+                                    console.log('fail');
+                                })
+                            });
+                        }
+                    }
+                },
+
+                "delete": {
+                    "label": "Delete",
+                    "action": function (e) {
+
+                        if (node.original.ChapterId > 0) {
+                            console.log('Edit Chapter');
+                        }
+                        else if (node.original.RootId > 0) {
+                            $.post('/Home/Delete_CommodityRoot', { Id: node.original.RootId }).done(function (data) {
+                                if (data == "ok") {
+                                     var parent = $("#tree").jstree(true).get_node(node).parent;
+                                       
+                                        $("#tree").jstree(true).refresh_node(parent);
+
+                                } else {
+                                    alert('Something goes wrong');
+                                }
+                            }).fail(function () {
+                                console.log('fail');
+                            });
+                        }
+                    }
+                }
+            };
+
+
+            return items;
+        }
+
+    </script>
+}

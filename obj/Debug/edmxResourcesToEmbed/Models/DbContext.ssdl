@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="Guest19Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="CommodityChapters">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="CommoditySectionId" Type="int" Nullable="false" />
+    <Property Name="Code" Type="nvarchar" MaxLength="10" Nullable="false" />
+    <Property Name="Name" Type="nvarchar" MaxLength="1000" Nullable="false" />
+    <Property Name="Description" Type="nvarchar" MaxLength="2000" />
+    <Property Name="Active" Type="bit" Nullable="false" />
+  </EntityType>
+  <EntityType Name="CommodityRoots">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="CommodityChapterId" Type="int" Nullable="false" />
+    <Property Name="Code" Type="nvarchar" MaxLength="30" Nullable="false" />
+    <Property Name="Name" Type="nvarchar" MaxLength="1000" Nullable="false" />
+    <Property Name="Description" Type="nvarchar" MaxLength="2000" />
+    <Property Name="Active" Type="bit" Nullable="false" />
+  </EntityType>
+  <EntityType Name="sysdiagrams">
+    <Key>
+      <PropertyRef Name="diagram_id" />
+    </Key>
+    <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
+    <Property Name="principal_id" Type="int" Nullable="false" />
+    <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="version" Type="int" />
+    <Property Name="definition" Type="varbinary(max)" />
+  </EntityType>
+  <Association Name="FK_CommodityRoots_CommodityChapters">
+    <End Role="CommodityChapters" Type="Self.CommodityChapters" Multiplicity="1" />
+    <End Role="CommodityRoots" Type="Self.CommodityRoots" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="CommodityChapters">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="CommodityRoots">
+        <PropertyRef Name="CommodityChapterId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="Guest19ModelStoreContainer">
+    <EntitySet Name="CommodityChapters" EntityType="Self.CommodityChapters" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="CommodityRoots" EntityType="Self.CommodityRoots" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
+    <AssociationSet Name="FK_CommodityRoots_CommodityChapters" Association="Self.FK_CommodityRoots_CommodityChapters">
+      <End Role="CommodityChapters" EntitySet="CommodityChapters" />
+      <End Role="CommodityRoots" EntitySet="CommodityRoots" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>
