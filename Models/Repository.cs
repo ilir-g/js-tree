@@ -72,7 +72,7 @@ namespace IlirGashijstree.Models
             catch (Exception ex)
             {
 
-                return false;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -88,7 +88,7 @@ namespace IlirGashijstree.Models
             }
             catch (Exception ex)
             {
-                return false;
+                throw new Exception(ex.Message);
             }
         }
       
